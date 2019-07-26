@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+  <link rel="canonical" href="https://itinerarium.github.io/phoneme-synthesis/" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>QazTTS α</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+  <!-- Bootstrap core CSS -->{% load static %}
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <!-- Material Design Bootstrap -->
+  <link href=""{% static 'css/mdb.min.css' %} rel="stylesheet">
+  <!-- Your custom styles (optional) -->
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <script type="text/javascript" src="{% static 'js/mespeak.js' %}"></script>
+  <script type="text/javascript">
+    meSpeak.loadConfig("{% static 'js/mespeak_config.json' %}");
+    meSpeak.loadVoice("{% static 'js/en.json' %}");
+  </script>
+</head>
+<body>
+
+  <!-- Start your project here-->
+  <nav class="navbar navbar-expand-lg navbar-dark indigo">
+    <a class="navbar-brand text-default">QazTTS.α</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Default Config
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Custom Config</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Custom Config Generator</a>
+        </li>
+      </ul>
+      <span class="navbar-text white-text">
+      α version dose NOT ready for production!
+    </span>
+    </div>
+  </nav>
+
+
+  <!--Material textarea-->
+  <div class="container align-middle text-center align-content-center justify-content-center">
+    <!-- Content here -->
+    <!-- Material form subscription -->
+    <div class="card modal-full-height m-5">
+
+      <!--Card content-->
+      <div class="card-body px-lg-5">
+
+        <!-- Form -->
+        <form action="{% url 'index' %}" method="post" class="text-center" style="color: #757575;" action="#!">
+
+
+
+          <!-- Name -->
+          <div class="md-form mt-3">
+            <input type="text" id="materialSubscriptionFormPasswords" class="form-control" name="kz">
+            <label for="materialSubscriptionFormPasswords">Qazaqsha Metidni Engizińiz(Cyrillic)</label>
+          </div>
+
+          <!-- Sign in button -->
+          <button class="btn btn-outline-info btn-rounded btn-block z-depth-0 my-4 waves-effect" type="submit">Generate the Signal</button>
+        {% csrf_token %}
+        </form>
+        <!-- Form -->
+        <!--          pro-->
+        <div id="container">
+          <noscript>
+            <p><strong>A modern JavaScript-enabled browser is required.</strong> As an alternative, consider using <a href="http://people.ds.cam.ac.uk/ssb22/gradint/lexconvert.html" rel="nofollow">lexconvert</a> in conjunction with <a href="http://espeak.sourceforge.net/">eSpeak</a>.</p>
+            <p>Sample command for <a href="https://en.wikipedia.org/wiki/Mumbai" rel="nofollow">Mumbai</a>:<br /><span style="font-family: monospace;">python lexconvert.py --try unicode-ipa "/mʊmˈbaɪ/"</span></p>
+          </noscript>
+
+          <script type="text/javascript">
+            var spoken;
+
+            // download function from Matěj Pokorný: https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file/18197511#18197511
+            function download() {
+              var pom = document.createElement('a');
+              pom.setAttribute('href', spoken);
+              pom.setAttribute('download', "spoken.wav");
+
+              if (document.createEvent) {
+                var event = document.createEvent('MouseEvents');
+                event.initEvent('click', true, true);
+                pom.dispatchEvent(event);
+              }
+              else {
+                pom.click();
+              }
+            }
+
+            function clear_download_button() {
+              document.getElementById("download-button").disabled = true;
+            }
+
+            function copyToClipboard(text) {
+              t = document.createElement('input');
+              t.value = text;
+              document.body.appendChild(t);
+              t.select();
+              document.execCommand('copy');
+              document.body.removeChild(t);
+            }
+
+            function copy_link_button() {
+              uipa = document.getElementById("ipa-input").value;
+              url = window.location.href.split('?')[0] + "?w=" + uipa;
+              copyToClipboard(url);
+            }
+
+            function process() {
+              uipa = document.getElementById("ipa-input").value;
+
+              document.getElementById("download-button").disabled = true;
+
+              // nothing to process
+              if (uipa == null || uipa.length == 0) {
+                return;
+              }
+
+              //translate
+              var mappings = [
+                { 'src': /^\s*\//g, 'dest': '' },
+                { 'src': /\/\s*$/g, 'dest': '' },
+
+                { 'src': /(\.)/g, 'dest': '%' },
+                { 'src': /(\u02c8)/g, 'dest': '\'' },
+                { 'src': /(\u02cc)/g, 'dest': ',' },
+                { 'src': /(\u0251)/g, 'dest': 'A:' },
+                { 'src': /(\u02d0)/g, 'dest': ':' },
+                { 'src': /(\u0251\u02d0)/g, 'dest': 'A' },
+                { 'src': /(\u0251\u0279)/g, 'dest': 'A' },
+                { 'src': /(a\u02d0)/g, 'dest': 'A' },
+
+                // feedback from formantzero via r/linguistics
+                { 'src': /(\u0329)/g, 'dest': 'r' },
+
+                // feedback from scharfes_s via r/linguistics
+                { 'src': /(\u027e)/g, 'dest': 't' },
+
+                { 'src': /(\xe6)/g, 'dest': 'a' },
+                { 'src': /(a)/g, 'dest': 'a' },
+                { 'src': /(\u028c)/g, 'dest': 'V' },
+                { 'src': /(\u0252)/g, 'dest': '0' },
+                { 'src': /(\u0254)/g, 'dest': '0' },
+                { 'src': /(a\u028a)/g, 'dest': 'aU' },
+                { 'src': /(\xe6\u0254)/g, 'dest': 'aU' },
+                { 'src': /(\u0259)/g, 'dest': '@' },
+                { 'src': /(\u025a)/g, 'dest': '3' },
+                { 'src': /(\u0259\u02d0)/g, 'dest': '3:' },
+                { 'src': /(a\u026a)/g, 'dest': 'aI' },
+                { 'src': /(\u028c\u026a)/g, 'dest': 'aI' },
+                { 'src': /(\u0251e)/g, 'dest': 'aI' },
+                { 'src': /(b)/g, 'dest': 'b' },
+                { 'src': /(t\u0283)/g, 'dest': 'tS' },
+                { 'src': /(\u02a7)/g, 'dest': 'tS' },
+                { 'src': /(d)/g, 'dest': 'd' },
+                { 'src': /(\xf0)/g, 'dest': 'D' },
+                { 'src': /(\u025b)/g, 'dest': 'E' },
+                { 'src': /(e)/g, 'dest': 'E' },
+                { 'src': /(\u025d)/g, 'dest': '3:' },
+                { 'src': /(\u025c\u02d0)/g, 'dest': '3:' },
+                { 'src': /(\u025b\u0259)/g, 'dest': 'e@' },
+                { 'src': /(e)/g, 'dest': 'E' },
+                { 'src': /(\u025d)/g, 'dest': '3:' },
+                { 'src': /(\u025c\u02d0)/g, 'dest': '3:' },
+                { 'src': /(e\u026a)/g, 'dest': 'eI' },
+                { 'src': /(\xe6\u026a)/g, 'dest': 'eI' },
+                { 'src': /(f)/g, 'dest': 'f' },
+                { 'src': /(\u0261)/g, 'dest': 'g' },
+                { 'src': /(g)/g, 'dest': 'g' },
+                { 'src': /(h)/g, 'dest': 'h' },
+                { 'src': /(\u026a)/g, 'dest': 'I' },
+                { 'src': /(\u0268)/g, 'dest': 'I' },
+                { 'src': /(\u026a\u0259)/g, 'dest': 'i@' },
+                { 'src': /(\u026a\u0279)/g, 'dest': 'i@' },
+                { 'src': /(\u026a\u0279\u0259)/g, 'dest': 'i@3' },
+                { 'src': /(i)/g, 'dest': 'i:' },
+                { 'src': /(i\u02d0)/g, 'dest': 'i:' },
+                { 'src': /(d\u0292)/g, 'dest': 'dZ' },
+                { 'src': /(\u02a4)/g, 'dest': 'dZ' },
+                { 'src': /(k)/g, 'dest': 'k' },
+                { 'src': /(x)/g, 'dest': 'x' },
+                { 'src': /(l)/g, 'dest': 'l' },
+                { 'src': /(d\u026b)/g, 'dest': 'l' },
+                { 'src': /(m)/g, 'dest': 'm' },
+                { 'src': /(n)/g, 'dest': 'n' },
+                { 'src': /(\u014b)/g, 'dest': 'N' },
+                { 'src': /(\u0259\u028a)/g, 'dest': 'oU' },
+                { 'src': /(o)/g, 'dest': 'oU' },
+                { 'src': /(o\u028a)/g, 'dest': 'oU' },
+                { 'src': /(\u0259\u0289)/g, 'dest': 'V' },
+                { 'src': /(\u0254\u026a)/g, 'dest': 'OI' },
+                { 'src': /(o\u026a)/g, 'dest': 'OI' },
+                { 'src': /(p)/g, 'dest': 'p' },
+                { 'src': /(\u0279)/g, 'dest': 'r' },
+                { 'src': /(s)/g, 'dest': 's' },
+                { 'src': /(\u0283)/g, 'dest': 'S' },
+                { 'src': /(t)/g, 'dest': 't' },
+                { 'src': /(\u027e)/g, 'dest': 't' },
+                { 'src': /(\u03b8)/g, 'dest': 'T' },
+                { 'src': /(\u028a\u0259)/g, 'dest': 'U@' },
+                { 'src': /(\u028a\u0279)/g, 'dest': 'U@' },
+                { 'src': /(\u028a)/g, 'dest': 'U' },
+                { 'src': /(\u0289\u02d0)/g, 'dest': 'u:' },
+                { 'src': /(u\u02d0)/g, 'dest': 'u:' },
+                { 'src': /(u)/g, 'dest': 'u:' },
+                { 'src': /(\u0254\u02d0)/g, 'dest': 'O:' },
+                { 'src': /(o\u02d0)/g, 'dest': 'O:' },
+                { 'src': /(v)/g, 'dest': 'v' },
+                { 'src': /(w)/g, 'dest': 'w' },
+                { 'src': /(\u028d)/g, 'dest': 'w' },
+                { 'src': /(j)/g, 'dest': 'j' },
+                { 'src': /(z)/g, 'dest': 'z' },
+                { 'src': /(\u0292)/g, 'dest': 'Z' },
+                { 'src': /(\u0294)/g, 'dest': '?' },
+
+                // special edits
+                { 'src': /(k\'a2n)/g, 'dest': 'k\'@n' },
+                { 'src': /(ka2n)/g, 'dest': 'k@n' },
+                { 'src': /(gg)/g, 'dest': 'g' },
+                { 'src': /(@U)/g, 'dest': 'oU' },
+                { 'src': /rr$/g, 'dest': 'r' },
+                { 'src': /3r$/g, 'dest': '3:' },
+                { 'src': /([iU]|([AO]:))@r$/g, 'dest': '$1@' },
+                { 'src': /([^e])@r/g, 'dest': '$1:3' },
+                { 'src': /e@r$/g, 'dest': 'e@' },
+                { 'src': /e@r([bdDfghklmnNprsStTvwjzZ])/g, 'dest': 'e@$1' },
+
+                // edits arising from testing
+                { 'src': /(\'k)+/g, 'dest': 'k\'' },
+                { 'src': /(\ː)+/g, 'dest': ':' },
+                { 'src': /(\:)+/g, 'dest': ':' },
+                { 'src': /(ᵻ)/g, 'dest': 'I' },
+                { 'src': /(ɜ)/g, 'dest': '3' },
+                { 'src': /(ɔ)/g, 'dest': 'O' },
+
+                // feedback from formantzero via r/linguistics
+                { 'src': /\u0361(.)/g, 'dest': '$1\'' },
+                { 'src': /3$/g, 'dest': 'R' }
+              ];
+
+              for (var i = 0; i < mappings.length; i++) {
+                uipa = uipa.replace(mappings[i].src, mappings[i].dest);
+                //console.log(mappings[i].src + uipa);
+              }
+              console.log(uipa);
+              spoken = meSpeak.speak('[['+uipa+']]', { 'rawdata': 'mime' });
+              if (spoken == null) {
+                alert("An error occurred: speaking failed.");
+              }
+
+              document.getElementById("download-button").disabled = false;
+
+              meSpeak.play(spoken);
+            }
+          </script>
+
+
+          <div id="tool">
+            <form onsubmit="process(); return false;">
+              <div class="hidden">
+                <input id="ipa-input" onchange="clear_download_button(); return false;" type="text" value=
+                        "{{ kz }}" />
+              </div>
+              <input id="submit" onclick="process(); return false;" type="button" value="pronounce" />
+              <input id="download-button" onclick="download(); return false;" type="button" disabled="disabled" value="download pronunciation" />
+              <input id="copy-link-button" onclick="copy_link_button(); return false;" type="button" value="copy share url" />
+            </form>
+          </div>
+
+          <hr />
+        </div>
+        <script type="text/javascript">
+          function is_valid_input(i) {
+            return !(i.includes("<") || i.includes(">") || i.length > 200)
+          }
+
+          (function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.has('w')) {
+              var word = urlParams.get('w');
+              if(is_valid_input(word)) {
+                document.getElementById("ipa-input").value = word;
+              }
+            }
+          })();
+        </script>
+        <!--              pro-->
+      </div>
+
+    </div>
+    <!-- Material form subscription -->
+  </div>
+
+
+  <footer class="page-footer font-small indigo fixed-bottom ">
+
+
+    <!-- Footer Links -->
+    <div class="container">
+
+      <!-- Grid row-->
+      <div class="row text-center d-flex justify-content-center pt-5 mb-3">
+
+        <!-- Grid column -->
+        <div class="col-md-2 mb-3">
+          <h6 class="text-uppercase font-weight-bold">
+            <a href="#!">About us</a>
+          </h6>
+        </div>
+        <!-- Grid column -->
+
+        <!-- Grid column -->
+        <div class="col-md-2 mb-3">
+          <h6 class="text-uppercase font-weight-bold">
+            <a href="#!">Products</a>
+          </h6>
+        </div>
+        <!-- Grid column -->
+
+        <!-- Grid column -->
+        <div class="col-md-2 mb-3">
+          <h6 class="text-uppercase font-weight-bold">
+            <a href="#!">Awards</a>
+          </h6>
+        </div>
+        <!-- Grid column -->
+
+        <!-- Grid column -->
+        <div class="col-md-2 mb-3">
+          <h6 class="text-uppercase font-weight-bold">
+            <a href="#!">Help</a>
+          </h6>
+        </div>
+        <!-- Grid column -->
+
+        <!-- Grid column -->
+        <div class="col-md-2 mb-3">
+          <h6 class="text-uppercase font-weight-bold">
+            <a href="#!">Contact</a>
+          </h6>
+        </div>
+        <!-- Grid column -->
+
+      </div>
+      <!-- Grid row-->
+      <hr class="rgba-white-light" style="margin: 0 15%;">
+
+      <!-- Grid row-->
+      <div class="row d-flex text-center justify-content-center mb-md-0 mb-4">
+
+        <!-- Grid column -->
+        <div class="col-md-8 col-12 mt-5">
+          <p style="line-height: 1.7rem">While others can, the Kazakh words also can have their own voice!</p>
+        </div>
+        <!-- Grid column -->
+
+      </div>
+      <!-- Grid row-->
+      <hr class="clearfix d-md-none rgba-white-light" style="margin: 10% 15% 5%;">
+
+      <!-- Grid row-->
+      <div class="row pb-3">
+
+        <!-- Grid column -->
+        <div class="col-md-12">
+
+          <div class="mb-5 flex-center">
+
+            <!-- Facebook -->
+            <a class="fb-ic">
+              <i class="fab fa-facebook-f fa-lg white-text mr-4"> </i>
+            </a>
+            <!-- Twitter -->
+            <a class="tw-ic">
+              <i class="fab fa-twitter fa-lg white-text mr-4"> </i>
+            </a>
+            <!-- Google +-->
+            <a class="gplus-ic">
+              <i class="fab fa-google-plus-g fa-lg white-text mr-4"> </i>
+            </a>
+            <!--Linkedin -->
+            <a class="li-ic">
+              <i class="fab fa-linkedin-in fa-lg white-text mr-4"> </i>
+            </a>
+            <!--Instagram-->
+            <a class="ins-ic">
+              <i class="fab fa-instagram fa-lg white-text mr-4"> </i>
+            </a>
+            <!--Pinterest-->
+            <a class="pin-ic">
+              <i class="fab fa-pinterest fa-lg white-text"> </i>
+            </a>
+
+          </div>
+
+        </div>
+        <!-- Grid column -->
+
+      </div>
+      <!-- Grid row-->
+
+    </div>
+    <!-- Footer Links -->
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3">© 2019 Copyright:
+      <a href="https://azat.ai"> Azat Artificial Intelligence LLP.</a>
+    </div>
+    <!-- Copyright -->
+
+  </footer>
+  <!-- Start your project here-->
+
+  <!-- SCRIPTS -->
+  <!-- JQuery -->
+  <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="{% static 'js/popper.min.js' %}"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="{% static 'js/mdb.min.js' %}"></script>
+</body>
+</html>
